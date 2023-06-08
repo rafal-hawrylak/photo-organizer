@@ -39,16 +39,9 @@ public class Organizer {
     }
 
     public void run() throws ParseException, IOException {
-        final File[] listFiles = sourceDir.listFiles(new FilenameFilter() {
-
-            @Override
-            public boolean accept(final File dir, final String name) {
-                return name.matches(fileNamePattern);
-            }
-        });
+        final File[] listFiles = sourceDir.listFiles((dir, name) -> name.matches(fileNamePattern));
         if (listFiles == null || listFiles.length == 0) {
-            System.out
-                    .println("No files matching pattern found in source directory");
+            System.out.println("No files matching pattern found in source directory");
             return;
         }
         File currentDir = null;
@@ -60,8 +53,7 @@ public class Organizer {
             if (!isWithinMaxLeap(file, lastFile)) {
                 currentDir = makeCurrentDir(file, targetDir, dirNamePattern);
             }
-            System.out.println("move " + file.getName() + " to "
-                    + currentDir.getName());
+            System.out.println("move " + file.getName() + " to " + currentDir.getName());
             moveFile(file, currentDir);
             lastFile = file;
         }
@@ -73,8 +65,7 @@ public class Organizer {
         final Matcher m = filePattern.matcher(file.getName());
         if (m.find()) {
             final String output = m.replaceFirst(dirNamePattern);
-            final String newDirName = targetDir.getAbsolutePath()
-                    + File.separator + output;
+            final String newDirName = targetDir.getAbsolutePath() + File.separator + output;
             currentDir = new File(newDirName);
             currentDir.mkdir();
         }
@@ -88,14 +79,12 @@ public class Organizer {
         }
         final Date dateA = makeDate(file.getName());
         final Date dateB = makeDate(lastFile.getName());
-        final long dayDiff = TimeUnit.DAYS.convert(
-                dateA.getTime() - dateB.getTime(), TimeUnit.MILLISECONDS);
+        final long dayDiff = TimeUnit.DAYS.convert(dateA.getTime() - dateB.getTime(), TimeUnit.MILLISECONDS);
         return Math.abs(dayDiff) <= maxLeap;
     }
 
     private Date makeDate(final String name) throws ParseException {
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd",
-                Locale.getDefault());
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         final Matcher m = filePattern.matcher(name);
         if (m.find()) {
             final String output = m.replaceFirst(datePattern);
