@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="PhotoOrganizer">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jar/PhotoOrganizer.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
