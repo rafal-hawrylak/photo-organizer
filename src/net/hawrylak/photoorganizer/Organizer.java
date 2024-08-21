@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -93,10 +96,20 @@ public class Organizer {
         return null;
     }
 
-    private void moveFile(final File file, final File currentDir)
+    private void moveFile(final File sourceFile, final File targetDir)
             throws IOException {
-        Files.move(file.toPath(), new File(currentDir.getAbsolutePath()
-                + File.separator + file.getName()).toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
+        Path sourcePath = sourceFile.toPath();
+        File targetFile = new File(targetDir.getAbsolutePath() + File.separator + sourceFile.getName());
+        Path targetPath = targetFile.toPath();
+        if (Files.exists(targetPath)) {
+            if (sourceFile.getTotalSpace() == targetFile.getTotalSpace()) {
+                System.out.println("File skipped as duplicate with the same size detected: " + sourceFile.getName() + ", size: " + sourceFile.getTotalSpace());
+                return;
+            } else {
+                System.out.println("File skipped as duplicate with the different sizes detected: " + sourceFile.getName() + ", source size: " + sourceFile.getTotalSpace() + ", target size: " + targetFile.getTotalSpace());
+                return;
+            }
+        }
+        Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 }
