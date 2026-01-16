@@ -1,5 +1,8 @@
 package net.hawrylak.photoorganizer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -8,6 +11,7 @@ import java.text.ParseException;
  * @author Rafal
  */
 public class PhotoOrganizer {
+    private static Logger logger = LogManager.getLogger(PhotoOrganizer.class);
 
     private static final int DEFAULT_MAX_LEAP = 0;
     private static final String DEFAULT_FILENAME_PATTERN = "([0-9]{4})-?([0-9]{2})-?([0-9]{2})[^0-9].*\\..*";
@@ -40,7 +44,7 @@ public class PhotoOrganizer {
         final File sourceDir = new File(sourceDirStr);
         if (!sourceDir.isDirectory()) {
             printUsage();
-            System.out.println("sourceDir does not exist");
+            logger.info("sourceDir does not exist");
             return;
         }
         final File targetDir = new File(targetDirStr);
@@ -59,9 +63,8 @@ public class PhotoOrganizer {
     }
 
     private static void printUsage() {
-        System.out.println("######## usage:");
-        System.out
-                .println("PhotoOrganizer sourceDir targetDir [maximum days of leap - default "
+        logger.info("######## usage:");
+        logger.info("PhotoOrganizer sourceDir targetDir [maximum days of leap - default "
                         + DEFAULT_MAX_LEAP
                         + "] [filename pattern - default "
                         + DEFAULT_FILENAME_PATTERN
@@ -76,12 +79,12 @@ public class PhotoOrganizer {
             final String targetDir, final int maxLeap,
             final String fileNamePattern, final String dirNamePattern,
             final String datePattern) {
-        System.out.println("######## run with params");
-        System.out.println("---------- sourceDir: " + sourceDir);
-        System.out.println("---------- targetDir: " + targetDir);
-        System.out.println("---------- maxLeap: " + maxLeap);
-        System.out.println("---------- fileNamePattern: " + fileNamePattern);
-        System.out.println("---------- dirNamePattern: " + dirNamePattern);
-        System.out.println("---------- datePattern: " + datePattern);
+        logger.info("######## run with params");
+        logger.info("---------- sourceDir: " + sourceDir);
+        logger.info("---------- targetDir: " + targetDir);
+        logger.info("---------- maxLeap: " + maxLeap);
+        logger.info("---------- fileNamePattern: " + fileNamePattern);
+        logger.info("---------- dirNamePattern: " + dirNamePattern);
+        logger.info("---------- datePattern: " + datePattern);
     }
 }

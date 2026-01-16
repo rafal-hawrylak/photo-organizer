@@ -1,26 +1,29 @@
 package net.hawrylak.photoorganizer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * @author Rafal
  */
 public class Organizer {
+    private static Logger logger = LogManager.getLogger(Organizer.class);
+
     private final File sourceDir;
     private final File targetDir;
     private final int maxLeap;
@@ -30,7 +33,7 @@ public class Organizer {
     private final String datePattern;
 
     public Organizer(final File sourceDir, final File targetDir,
-            final int maxLeap, final String fileNamePattern,
+                     final int maxLeap, final String fileNamePattern,
             final String dirNamePattern, final String datePattern) {
         this.sourceDir = sourceDir;
         this.targetDir = targetDir;
@@ -42,21 +45,18 @@ public class Organizer {
     }
 
     public void run() throws ParseException, IOException {
-        final File[] listFiles = sourceDir.listFiles((dir, name) -> name.matches(fileNamePattern));
+        final File[] listFiles = sourceDir.listFiles((_, name) -> name.matches(fileNamePattern));
         if (listFiles == null || listFiles.length == 0) {
-            System.out.println("No files matching pattern found in source directory");
+            logger.info("No files matching pattern found in source directory");
             return;
         }
         File currentDir = null;
         File lastFile = null;
         for (final File file : listFiles) {
-            if (currentDir == null) {
+            if (currentDir == null || !isWithinMaxLeap(file, lastFile)) {
                 currentDir = makeCurrentDir(file, targetDir, dirNamePattern);
             }
-            if (!isWithinMaxLeap(file, lastFile)) {
-                currentDir = makeCurrentDir(file, targetDir, dirNamePattern);
-            }
-            System.out.println("move " + file.getName() + " to " + currentDir.getName());
+            logger.info("move " + file.getName() + " to " + currentDir.getName());
             moveFile(file, currentDir);
             lastFile = file;
         }
@@ -103,10 +103,10 @@ public class Organizer {
         Path targetPath = targetFile.toPath();
         if (Files.exists(targetPath)) {
             if (sourceFile.getTotalSpace() == targetFile.getTotalSpace()) {
-                System.out.println("File skipped as duplicate with the same size detected: " + sourceFile.getName() + ", size: " + sourceFile.getTotalSpace());
+                logger.info("File skipped as duplicate with the same size detected: " + sourceFile.getName() + ", size: " + sourceFile.getTotalSpace());
                 return;
             } else {
-                System.out.println("File skipped as duplicate with the different sizes detected: " + sourceFile.getName() + ", source size: " + sourceFile.getTotalSpace() + ", target size: " + targetFile.getTotalSpace());
+                logger.info("File skipped as duplicate with the different sizes detected: " + sourceFile.getName() + ", source size: " + sourceFile.getTotalSpace() + ", target size: " + targetFile.getTotalSpace());
                 return;
             }
         }
